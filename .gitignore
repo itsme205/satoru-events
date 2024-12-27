@@ -1,0 +1,10 @@
+dist/
+src/.env
+src/config/config.ts
+src/config/vacancies.ts
+src/config/tickets.ts
+src/modules/data_manager/data/data.json
+tmp
+
+node_modules
+package-lock.json
