@@ -49,7 +49,7 @@
       "@interfaces": [
         "interfaces"
       ],
-      "@config": [
+      "@config*": [
         "config"
       ],
       "@classes*": [
