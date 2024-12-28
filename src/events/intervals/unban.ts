@@ -7,7 +7,7 @@ async function unbanTick() {
   const guild = global.client.guilds.cache.get(BotConfig.guildId);
   if (!guild) return;
 
-  const bans = await sqliteAll<ISqliteBannedUser[]>(`SELECT * FROM close_bans`);
+  const bans = await sqliteAll<ISqliteBannedUser[]>(`SELECT * FROM event_bans`);
   for (let i in bans) {
     const endsAt = new Date(bans[i].endsAt);
     if (endsAt > new Date()) continue;
