@@ -72,7 +72,7 @@ export default new SlashCommand()
         type: Discord.ChannelType.GuildText,
       });
       await manageChannel.lockPermissions();
-      manageChannel.permissionOverwrites.edit(
+      await manageChannel.permissionOverwrites.edit(
         interaction.guild.roles.everyone.id,
         {
           ViewChannel: false,
@@ -123,7 +123,8 @@ export default new SlashCommand()
 
     const scheduledEventStartDate = new Date();
     scheduledEventStartDate.setMinutes(
-      scheduledEventStartDate.getMinutes() + 5
+      scheduledEventStartDate.getMinutes() +
+        parseInt(interaction.options.get("минуты")?.value?.toString() ?? "5")
     );
     if (eventType.scheduledEvent)
       interaction.guild.scheduledEvents
@@ -155,6 +156,12 @@ export default new SlashCommand()
           .setDescription("тип ивента, который вы хотите использовать")
           .setRequired(true)
           .setAutocomplete(true)
+      )
+      .addNumberOption((opt) =>
+        opt
+          .setName("минуты")
+          .setDescription("через сколько минут начнется ивент?")
+          .setRequired(false)
       )
       .setDescription("Создать ивент.")
   );
