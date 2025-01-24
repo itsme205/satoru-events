@@ -9,6 +9,7 @@ import Event from "@modules/mongodb/models/Event";
 import embeds from "@modules/embeds";
 import { messages } from "@config/messages";
 import { memberHasOneRole } from "@modules/utils";
+import { eventChannelPatterns } from "@config/channelPatterns";
 
 export default new SlashCommand()
   .setExecute(async (interaction, throwError) => {
@@ -26,6 +27,13 @@ export default new SlashCommand()
 
     if ((await Event.count({ createdBy: interaction.user.id })) >= 5)
       return throwError("Ошибка", "Нельзя создать больше 5 ивентов.");
+
+    const channelsPattern =
+      eventChannelPatterns[
+        (interaction.options.get("паттерн")?.value ?? "").toString()
+      ];
+    if (!channelsPattern)
+      return throwError("Ошибка", "Паттерн каналов не найден.");
 
     const eventTypeId =
       interaction.options.get("тип")?.value?.toString() ?? "-1";
@@ -64,7 +72,7 @@ export default new SlashCommand()
 
     let manageChannel;
     let rulesChannel;
-    let voiceChannel;
+    let voiceChannel: Discord.VoiceBasedChannel | undefined;
     try {
       manageChannel = await interaction.guild.channels.create({
         name: "управление",
@@ -90,11 +98,24 @@ export default new SlashCommand()
         { SendMessages: false }
       );
 
-      (voiceChannel = await interaction.guild.channels.create({
-        name: "Голосовой",
-        parent: parent.id,
-        type: Discord.ChannelType.GuildVoice,
-      })).lockPermissions();
+      for (let i in channelsPattern) {
+        let channel;
+        try {
+          channel = await interaction.guild.channels.create({
+            ...channelsPattern[i],
+            ...{
+              parent: parent.id,
+            },
+          });
+          await channel.lockPermissions();
+        } catch (err) {
+          console.log(err);
+        }
+
+        if (!voiceChannel && channel && channel.isVoiceBased()) {
+          voiceChannel = channel;
+        }
+      }
     } catch (err) {
       console.log(err);
       return throwError("Ошибка", "Не удалось создать каналы.");
@@ -126,7 +147,7 @@ export default new SlashCommand()
       scheduledEventStartDate.getMinutes() +
         parseInt(interaction.options.get("минуты")?.value?.toString() ?? "5")
     );
-    if (eventType.scheduledEvent)
+    if (eventType.scheduledEvent && voiceChannel)
       interaction.guild.scheduledEvents
         .create({
           name: eventType.scheduledEvent.name,
@@ -154,6 +175,13 @@ export default new SlashCommand()
         opt
           .setName("тип")
           .setDescription("тип ивента, который вы хотите использовать")
+          .setRequired(true)
+          .setAutocomplete(true)
+      )
+      .addStringOption((opt) =>
+        opt
+          .setName("паттерн")
+          .setDescription("паттерн, который вы хотите использовать")
           .setRequired(true)
           .setAutocomplete(true)
       )

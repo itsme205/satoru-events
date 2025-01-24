@@ -7,7 +7,9 @@ export default {
     if (
       !interaction.isAutocomplete() ||
       (interaction.commandName !== "event-create" &&
-        interaction.commandName !== "event-type")
+        interaction.commandName !== "event-type") ||
+      (interaction.options.getFocused(true).name != "тип" &&
+        interaction.options.getFocused(true).name != "название")
     )
       return;
 
