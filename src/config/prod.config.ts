@@ -7,7 +7,7 @@ export const BotConfig = {
   categoryDefaultPermissions: [] as OverwriteResolvable[],
   announceChannelId: "1294997066103128074" as string,
   roleIds: {
-    eventerRoleId: ["1294996646513475625"] as string[],
+    eventerRoleId: ["1294996646513475625", "1294996639332700251", "1294996635629391946"] as string[],
     eventAdminRoleId: ["1294996635629391946"] as string[],
   },
 };
